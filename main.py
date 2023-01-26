@@ -3,12 +3,14 @@ import os
 from pathlib import Path
 import zipfile
 
+from fontTools.ttLib.ttFont import TTFont
 import requests
 
 FIRA_CODE_VERSION = "6.2"
 PRETENDARD_VERSION = "1.3.6"
 
 CACHE_DIR = Path(os.path.dirname(os.path.realpath(__file__))) / ".cache"
+BUILD_DIR = Path(os.path.dirname(os.path.realpath(__file__))) / "build"
 FIRA_CODE_CACHE = CACHE_DIR / "fira"
 PRETENDARD_CACHE = CACHE_DIR / "pretendard"
 
@@ -28,3 +30,9 @@ if not PRETENDARD_CACHE.exists():
     with zipfile.ZipFile(io.BytesIO(response.content)) as z:
         z.extractall(PRETENDARD_CACHE)
 
+firacode = TTFont(FIRA_CODE_CACHE / "variable_ttf" / "FiraCode-VF.ttf")
+pretendard = TTFont(PRETENDARD_CACHE / "public" / "variable" / "PretendardVariable.ttf")
+
+result = firacode
+os.makedirs(BUILD_DIR)
+result.save(BUILD_DIR / "PreFiraCode-VF.ttf")
