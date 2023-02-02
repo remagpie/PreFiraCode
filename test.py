@@ -5,8 +5,8 @@ from PIL import Image, ImageDraw, ImageFont
 
 ROOT_DIR = Path(os.path.dirname(os.path.realpath(__file__)))
 
-font = ImageFont.truetype((ROOT_DIR / "build" / "PreFiraCode-VF.ttf").as_posix(), 24)
-font_size = 48
+font_size = 96
+font = ImageFont.truetype((ROOT_DIR / "build" / "PreFiraCode-VF.ttf").as_posix(), font_size)
 padding = font_size
 dataset = [
     # Alphabet
@@ -17,6 +17,20 @@ dataset = [
     ["가", "나", "다", "라", "마", "바", "사"],
     ["아", "자", "차", "카", "타", "파", "하"],
     ["다", "람", "쥐", "헌", "쳇", "바", "퀴", "에", "타", "고", "파"],
+    # Fira Code Ligatures
+    ["++", "--"],
+    ["->", "=>", "__"],
+    ["==", "===", "!=", "!=="],
+    # cv02
+    ["g", "\u011d", "\u011f", "\u0121", "\u0123"],
+    # ss01
+    ["r"],
+    #ss02
+    ["<=", ">="],
+    # ss03
+    ["&", "&&"],
+    # ss05
+    ["@", "~@"],
 ]
 line_len = [sum(len(word) for word in line) + len(line) - 1 for line in dataset]
 
