@@ -57,10 +57,6 @@ result["fvar"] = firacode["fvar"]
 result["gvar"] = firacode["gvar"]
 result.setGlyphOrder(firacode.glyphOrder)
 
-print(firacode.keys())
-print(pretendard.keys())
-print(result.keys())
-
 def get_gsub_feature(font, tag):
     return next((f for f in font["GSUB"].table.FeatureList.FeatureRecord if f.FeatureTag == tag), None)
 
@@ -237,6 +233,14 @@ add_lookup(result, "calt", subst["lookup"])
 replace_cmap(result, "at", "at.ss05")
 # TODO: sub asciitilde.spacer' asciitilde_at.liga by asciitilde;
 # TODO: sub asciitilde asciitilde_at.liga' by at.ss05;
+
+for codepoint in range(0xAC00, 0xD7A4):
+    glyph_id = f"uni{codepoint:X}"
+    result["glyf"][glyph_id] = pretendard["glyf"][glyph_id]
+    result["hmtx"][glyph_id] = pretendard["hmtx"][glyph_id]
+    result["gvar"].variations.data[glyph_id] = pretendard["gvar"].variations.data[glyph_id]
+    for subtable in result["cmap"].tables:
+        subtable.cmap[codepoint] = glyph_id
 
 os.makedirs(BUILD_DIR, exist_ok=True)
 result.save(BUILD_DIR / "PreFiraCode-VF.ttf")
