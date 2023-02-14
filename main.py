@@ -352,6 +352,9 @@ delta_scale = fira_weight.maxValue / pretendard_weight.maxValue
 ## 0.8 is magical value for fitting thickness
 delta_scale = delta_scale * glyph_scale * 0.8
 
+# Calculate width of single character
+unit_width = firacode["hmtx"]["M"][0]
+
 # Insert hangul characters
 pretendard["gvar"].ensureDecompiled()
 for codepoint in chain(range(0x3131, 0x3163), range(0xAC00, 0xD7A4)):
@@ -373,7 +376,7 @@ for codepoint in chain(range(0x3131, 0x3163), range(0xAC00, 0xD7A4)):
         glyph.yMin = min(glyph.yMin, glyph_y)
         glyph.yMax = max(glyph.yMax, glyph_y)
     result["glyf"][glyph_id] = glyph
-    result["hmtx"][glyph_id] = pretendard["hmtx"][glyph_id]
+    result["hmtx"][glyph_id] = (unit_width * 2, (unit_width * 2 - (glyph.xMax - glyph.xMin)) // 2)
 
     variation = pretendard["gvar"].variations.data[glyph_id]
     for v in variation:
