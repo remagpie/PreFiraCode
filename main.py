@@ -1,3 +1,4 @@
+from datetime import datetime
 import io
 from itertools import chain
 import math
@@ -12,6 +13,8 @@ FONT_VERSION = "1.000"
 
 FIRA_CODE_VERSION = "6.2"
 PRETENDARD_VERSION = "1.3.6"
+CREATED_AT = datetime.strptime("2023-02-13 12:00:00", "%Y-%m-%d %H:%M:%S")
+MODIFIED_AT = datetime.strptime("2023-02-13 12:00:00", "%Y-%m-%d %H:%M:%S")
 
 CACHE_DIR = Path(os.path.dirname(os.path.realpath(__file__))) / ".cache"
 BUILD_DIR = Path(os.path.dirname(os.path.realpath(__file__))) / "build"
@@ -225,10 +228,9 @@ result["gvar"] = firacode["gvar"]
 result.setGlyphOrder(firacode.glyphOrder)
 
 result["head"].fontRevision = float(FONT_VERSION)
+result["head"].created = int(CREATED_AT.timestamp() - datetime.strptime("1904-01-01 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
+result["head"].modified = int(MODIFIED_AT.timestamp() - datetime.strptime("1904-01-01 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
 
-# created_at = datetime.datetime.strptime()
-# TODO: head.created
-# TODO: head.modified
 # TODO: head.xMin, yMIn, xMax, yMax
 # TODO: head.indexToLocFormat
 # TODO: hhea.ascent, descent
