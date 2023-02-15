@@ -227,42 +227,39 @@ result["fvar"] = firacode["fvar"]
 result["gvar"] = firacode["gvar"]
 result.setGlyphOrder(firacode.glyphOrder)
 
+# Calculate glyph scaling factor with letter M
+fira_M = firacode["glyf"]["M"]
+pretendard_M = pretendard["glyf"]["M"]
+glyph_scale = (fira_M.yMax - fira_M.yMin) / (pretendard_M.yMax - pretendard_M.yMin)
+
+# Calculate delta scaling factor
+fira_weight = next(axis for axis in firacode["fvar"].axes if axis.axisTag == "wght")
+pretendard_weight = next(axis for axis in pretendard["fvar"].axes if axis.axisTag == "wght")
+delta_scale = fira_weight.maxValue / pretendard_weight.maxValue
+## default weight of firacode / default weight of pretendard = 300 / 400 = 0.75
+delta_scale = delta_scale * glyph_scale * 0.75
+
+# Calculate width of single character
+unit_width = firacode["hmtx"]["M"][0]
+
 result["head"].fontRevision = float(FONT_VERSION)
 result["head"].created = int(CREATED_AT.timestamp() - datetime.strptime("1904-01-01 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
 result["head"].modified = int(MODIFIED_AT.timestamp() - datetime.strptime("1904-01-01 00:00:00", "%Y-%m-%d %H:%M:%S").timestamp())
+result["post"].isFixedPitch = 0
+result["OS/2"].xAvgCharWidth = unit_width
+result["OS/2"].panose.bProportion = 3
+result["OS/2"].ulUnicodeRange2 | (1 << 20)
+result["OS/2"].ulUnicodeRange2 | (1 << 24)
+result["OS/2"].ulCodePageRange1 | (1 << 19)
+result["OS/2"].ulCodePageRange1 | (1 << 21)
+result["OS/2"].achVendID = "RMGP"
 
-# TODO: head.xMin, yMIn, xMax, yMax
-# TODO: head.indexToLocFormat
-# TODO: hhea.ascent, descent
-# TODO: hhea.advanceWidthMax,
-# TODO: hhea.minLeftSideBearing, minRightSideBearing
-# TODO: hhea.xMaxExtent
-# TODO: hhea.numberOfHMetrics
-# TODO: maxp.numGlyphs
-# TODO: maxp.maxPoints
-# TODO: maxp.maxContours
-# TODO: maxp.maxCompositePoints
-# TODO: maxp.maxCompositeContours
-# TODO: maxp.maxTwilightPoints
-# TODO: maxp.maxStorage
-# TODO: maxp.maxFunctionDefs
-# TODO: maxp.maxStackElements
-# TODO: maxp.maxComponentElements
-# TODO: maxp.maxComponentDepth
-# TODO: OS/2.xAvgCharWidth
-# TODO: OS/2.usWeightClass
-# TODO: OS/2.ySubscriptXSize, ySubscriptYSize, ySubscriptYOffset
-# TODO: OS/2.ySuperscriptXSize, ySuperscriptYSize, ySuperscriptYOffset
-# TODO: OS/2.yStrikeoutSize, yStrikeoutPosition
-# # TODO: OS/2.panose
-# TODO: OS/2.ulUnicodeRange1, ulUnicodeRange2, ulUnicodeRange3, ulUnicodeRange4
-# TODO: OS/2.achVendID
-# TODO: OS/2.usFirstCharIndex
-# TODO: OS/2.sTypoAscender, sTypoDescender
-# TODO: OS/2.winAscent, winDescent
-# TODO: OS/2.ulCodePageRange1, ulCodePageRange2
-# TODO: OS/2.sxHeight, sCapHeight
-# TODO: OS/2.usMaxContext
+# # Set default thickness
+# result["OS/2"].usWeightClass = 400
+# weight_axis = next(axis for axis in result["fvar"].axes if axis.axisTag == "wght")
+# weight_axis.defaultValue = 400
+# 가나다라 asdfasdf
+
 for name in result["name"].names:
     if name.nameID == 0:
         firacode_copyright = find_name(firacode, 0)
@@ -273,7 +270,7 @@ for name in result["name"].names:
     elif name.nameID == 2:
         name.string = encode_name(name.platformID, "Regular")
     elif name.nameID == 3:
-        name.string = encode_name(name.platformID, f"{FONT_VERSION};CTRM;PreFiraCodeVariable")
+        name.string = encode_name(name.platformID, f"{FONT_VERSION};RMGP;PreFiraCodeVariable")
     elif name.nameID == 4:
         name.string = encode_name(name.platformID, "PreFira Code Variable")
     elif name.nameID == 5:
@@ -307,15 +304,15 @@ for name in result["name"].names:
     elif name.nameID == 25:
         name.string = encode_name(name.platformID, "PreFiraCode Variable")
     elif name.nameID == 262:
-        name.string = encode_name(name.platformID, "PreFiraCode-Light")
+        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Light")
     elif name.nameID == 263:
-        name.string = encode_name(name.platformID, "PreFiraCode-Regular")
+        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Regular")
     elif name.nameID == 264:
-        name.string = encode_name(name.platformID, "PreFiraCode-Medium")
+        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Medium")
     elif name.nameID == 265:
-        name.string = encode_name(name.platformID, "PreFiraCode-SemiBold")
+        name.string = encode_name(name.platformID, "PreFiraCodeVariable-SemiBold")
     elif name.nameID == 266:
-        name.string = encode_name(name.platformID, "PreFiraCode-Bold")
+        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Bold")
 
 # Turn on cv02 by default
 replace_cmap(result, "g", "g.cv02")
@@ -339,21 +336,6 @@ add_lookup(result, "calt", subst["lookup"])
 replace_cmap(result, "at", "at.ss05")
 # TODO: sub asciitilde.spacer' asciitilde_at.liga by asciitilde;
 # TODO: sub asciitilde asciitilde_at.liga' by at.ss05;
-
-# Calculate glyph scaling factor with letter M
-fira_M = firacode["glyf"]["M"]
-pretendard_M = pretendard["glyf"]["M"]
-glyph_scale = (fira_M.yMax - fira_M.yMin) / (pretendard_M.yMax - pretendard_M.yMin)
-
-# Calculate delta scaling factor
-fira_weight = next(axis for axis in firacode["fvar"].axes if axis.axisTag == "wght")
-pretendard_weight = next(axis for axis in pretendard["fvar"].axes if axis.axisTag == "wght")
-delta_scale = fira_weight.maxValue / pretendard_weight.maxValue
-## 0.8 is magical value for fitting thickness
-delta_scale = delta_scale * glyph_scale * 0.8
-
-# Calculate width of single character
-unit_width = firacode["hmtx"]["M"][0]
 
 # Insert hangul characters
 pretendard["gvar"].ensureDecompiled()
@@ -388,10 +370,27 @@ for codepoint in chain(range(0x3131, 0x3163), range(0xAC00, 0xD7A4)):
     for subtable in result["cmap"].tables:
         subtable.cmap[codepoint] = glyph_id
 
-# print(result["OS/2"].__dict__)
-# print(firacode["OS/2"].__dict__)
-# print(pretendard["OS/2"].__dict__)
+result["head"].xMin = firacode["head"].xMin
+result["head"].yMin = firacode["head"].yMin
+result["head"].xMax = firacode["head"].xMax
+result["head"].yMax = firacode["head"].yMax
+result["hhea"].advanceWidthMax = firacode["hhea"].advanceWidthMax
+result["hhea"].minLeftSideBearing = firacode["hhea"].minLeftSideBearing
+result["hhea"].minRightSideBearing = firacode["hhea"].minRightSideBearing
+result["hhea"].xMaxExtent = firacode["hhea"].xMaxExtent
+for codepoint in chain(range(0x3131, 0x3163), range(0xAC00, 0xD7A4)):
+    glyph_id = f"uni{codepoint:X}"
+    glyph = result["glyf"][glyph_id]
+    result["head"].xMin = min(result["head"].xMin, glyph.xMin)
+    result["head"].yMin = min(result["head"].yMin, glyph.yMin)
+    result["head"].xMax = min(result["head"].xMax, glyph.xMax)
+    result["head"].yMax = min(result["head"].yMax, glyph.yMax)
+
+    hmtx = result["hmtx"][glyph_id]
+    result["hhea"].advanceWidthMax = max(result["hhea"].advanceWidthMax, hmtx[0])
+    result["hhea"].minLeftSideBearing = min(result["hhea"].minLeftSideBearing, hmtx[1])
+    result["hhea"].minRightSideBearing = min(result["hhea"].minRightSideBearing, hmtx[0] - (hmtx[1] + glyph.xMax - glyph.xMin))
+    result["hhea"].xMaxExtent = max(result["hhea"].xMaxExtent, hmtx[1] + glyph.xMax - glyph.xMin)
 
 os.makedirs(BUILD_DIR, exist_ok=True)
 result.save(BUILD_DIR / "PreFiraCode-VF.ttf")
-result.saveXML(BUILD_DIR / "asdf.xml")
