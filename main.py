@@ -39,6 +39,8 @@ if not PRETENDARD_CACHE.exists():
 
 firacode = TTFont(FIRA_CODE_CACHE / "variable_ttf" / "FiraCode-VF.ttf")
 pretendard = TTFont(PRETENDARD_CACHE / "public" / "variable" / "PretendardVariable.ttf")
+firacode["gvar"].ensureDecompiled()
+pretendard["gvar"].ensureDecompiled()
 
 def get_gsub_feature(font, tag):
     return next((f for f in font["GSUB"].table.FeatureList.FeatureRecord if f.FeatureTag == tag), None)
@@ -254,29 +256,23 @@ result["OS/2"].ulCodePageRange1 | (1 << 19)
 result["OS/2"].ulCodePageRange1 | (1 << 21)
 result["OS/2"].achVendID = "RMGP"
 
-# # Set default thickness
-# result["OS/2"].usWeightClass = 400
-# weight_axis = next(axis for axis in result["fvar"].axes if axis.axisTag == "wght")
-# weight_axis.defaultValue = 400
-# 가나다라 asdfasdf
-
 for name in result["name"].names:
     if name.nameID == 0:
         firacode_copyright = find_name(firacode, 0)
         pretendard_copyright = find_name(pretendard, 0)
         name.string = encode_name(name.platformID, f"FiraCode - {firacode_copyright}, Pretendard - {pretendard_copyright}")
     if name.nameID == 1:
-        name.string = encode_name(name.platformID, "PreFira Code Variable")
+        name.string = encode_name(name.platformID, "PreFira Code")
     elif name.nameID == 2:
         name.string = encode_name(name.platformID, "Regular")
     elif name.nameID == 3:
         name.string = encode_name(name.platformID, f"{FONT_VERSION};RMGP;PreFiraCodeVariable")
     elif name.nameID == 4:
-        name.string = encode_name(name.platformID, "PreFira Code Variable")
+        name.string = encode_name(name.platformID, "PreFira Code")
     elif name.nameID == 5:
         name.string = encode_name(name.platformID, f"Version {FONT_VERSION}")
     elif name.nameID == 6:
-        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Regular")
+        name.string = encode_name(name.platformID, "PreFiraCode-Light")
     elif name.nameID == 7:
         firacode_trademark = find_name(firacode, 7)
         pretendard_trademark = find_name(pretendard, 7)
@@ -298,21 +294,21 @@ for name in result["name"].names:
     elif name.nameID == 14:
         name.string = encode_name(name.platformID, "http://scripts.sil.org/OFL")
     elif name.nameID == 16:
-        name.string = encode_name(name.platformID, "PreFira Code Variable")
+        name.string = encode_name(name.platformID, "PreFira Code")
     elif name.nameID == 17:
-        name.string = encode_name(name.platformID, "Regular")
+        name.string = encode_name(name.platformID, "Light")
     elif name.nameID == 25:
-        name.string = encode_name(name.platformID, "PreFiraCode Variable")
+        name.string = encode_name(name.platformID, "PreFiraCode")
     elif name.nameID == 262:
-        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Light")
+        name.string = encode_name(name.platformID, "PreFiraCode-Light")
     elif name.nameID == 263:
-        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Regular")
+        name.string = encode_name(name.platformID, "PreFiraCode-Regular")
     elif name.nameID == 264:
-        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Medium")
+        name.string = encode_name(name.platformID, "PreFiraCode-Medium")
     elif name.nameID == 265:
-        name.string = encode_name(name.platformID, "PreFiraCodeVariable-SemiBold")
+        name.string = encode_name(name.platformID, "PreFiraCode-SemiBold")
     elif name.nameID == 266:
-        name.string = encode_name(name.platformID, "PreFiraCodeVariable-Bold")
+        name.string = encode_name(name.platformID, "PreFiraCode-Bold")
 
 # Turn on cv02 by default
 replace_cmap(result, "g", "g.cv02")
@@ -338,7 +334,6 @@ replace_cmap(result, "at", "at.ss05")
 # TODO: sub asciitilde asciitilde_at.liga' by at.ss05;
 
 # Insert hangul characters
-pretendard["gvar"].ensureDecompiled()
 for codepoint in chain(range(0x3131, 0x3163), range(0xAC00, 0xD7A4)):
     glyph_id = f"uni{codepoint:X}"
     glyph = pretendard["glyf"][glyph_id]
